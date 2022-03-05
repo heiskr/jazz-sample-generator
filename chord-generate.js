@@ -2,37 +2,51 @@ const pitches = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 const pitchNames = ['c', 'd♭', 'd', 'e♭', 'e', 'f', 'g♭', 'g', 'a♭', 'a', 'b♭', 'b']
 const pitchMap = Object.fromEntries(pitches.map((p, i) => [p, pitchNames[i]]))
 
+// https://bit.ly/3J1NQBf  https://bit.ly/3Kl6xQA
 const chordTypes = [{
-  name: 'diminished',
+  type: 'o7',
   members: [0, 3, 6, 9],
+  tones: [0, 2, 3, 5, 6, 8, 9, 11],
   weight: 1,
 }, {
-  name: 'halfDiminished',
+  type: 'ø7',
   members: [0, 3, 6, 10],
+  tones: [0, 2, 3, 5, 6, 8, 10],
   weight: 2,
 }, {
-  name: 'minor',
+  type: '−7',
   members: [0, 3, 7, 10],
+  tones: [0, 2, 3, 5, 7, 9, 10],
   weight: 5,
 }, {
-  name: 'minorMajor',
+  type: '−Δ7',
   members: [0, 3, 7, 11],
+  tones: [0, 2, 3, 5, 7, 9, 11],
   weight: 4,
 }, {
-  name: 'dominant',
+  type: '7',
   members: [0, 4, 7, 10],
+  tones: [0, 1, 2, 3, 4, 6, 7, 8, 9, 10],
   weight: 4,
 }, {
-  name: 'major',
-  members: [0, 4, 7, 11],
-  weight: 5,
-}, {
-  name: 'augmented',
-  members: [0, 4, 8, 10],
+  type: '7♭5',
+  members: [0, 4, 6, 10],
+  tones: [0, 1, 2, 3, 4, 6, 7, 8, 9, 10],
   weight: 1,
 }, {
-  name: 'augmentedMajor',
+  type: 'Δ7',
+  members: [0, 4, 7, 11],
+  tones: [0, 2, 4, 6, 7, 9, 11],
+  weight: 5,
+}, {
+  type: '+7',
+  members: [0, 4, 8, 10],
+  tones: [0, 1, 2, 3, 4, 6, 8, 9, 10],
+  weight: 1,
+}, {
+  type: '+Δ7',
   members: [0, 4, 8, 11],
+  tones: [0, 2, 4, 6, 8, 11],
   weight: 1,
 }]
 
@@ -41,8 +55,9 @@ const allChords = pitches.map(pitch =>
     .map(chordType => ({
       pitch,
       pitchName: pitchMap[pitch],
-      chordName: chordType.name,
+      type: chordType.type,
       members: chordType.members.map(member => (pitch + member) % 12),
+      tones: chordType.tones.map(tone => (pitch + tone) % 12),
       weight: chordType.weight,
     }))
 ).flat()
@@ -66,10 +81,30 @@ function makeChordSequence(length = 32) {
       )
     }
     currentChord = pickRandomWithWeight(availableChords)
-    currentChord.weight += 1
+    currentChord.weight = 2 * chordTypes.find(ct => ct.type === currentChord.type).weight
     chords.push(currentChord)
   }
   return chords
+}
+
+function makeMeasureRhythm() {
+  return [...Array(8)].map(() => Math.random() > 0.7)
+}
+
+function makeMelody() {
+  const chords = makeChordSequence()
+  const rhythm1 = makeMeasureRhythm()
+  const rhythm2 = makeMeasureRhythm()
+
+  return chords.map(chord => {
+    const rhythm = Math.random() > 0.5 ? rhythm1 : rhythm2
+    chord.melody = rhythm.map(on => {
+      on = Math.random() > 0.9 ? !on : on
+      if (!on) return false
+      return pickRandom((Math.random() > 0.5 ? chord.members : chord.tones).slice(1))
+    })
+    return chord
+  })
 }
 
 function pickRandom(arr) {
@@ -89,5 +124,11 @@ function deepCopy(a) {
   return JSON.parse(JSON.stringify(a))
 }
 
-const sequence = makeChordSequence()
-console.log(sequence.map(chord => `${chord.pitchName} ${chord.chordName}: ${chord.members.map(p => pitchMap[p]).join(' ')}`).join('\n'))
+const sequence = makeMelody()
+console.log(
+  sequence.map(chord => `${
+    (chord.pitchName.toUpperCase() + chord.type).padStart(5)
+  }: ${
+    chord.melody.map(p => (pitchMap[p] || '-').padEnd(2)).join(' ')
+  }`).join('\n')
+)

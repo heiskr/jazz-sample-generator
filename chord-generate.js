@@ -5,11 +5,11 @@ const pitchMap = Object.fromEntries(pitches.map((p, i) => [p, pitchNames[i]]))
 const chordTypes = [{
   name: 'diminished',
   members: [0, 3, 6, 9],
-  weight: 2,
+  weight: 1,
 }, {
   name: 'halfDiminished',
   members: [0, 3, 6, 10],
-  weight: 3,
+  weight: 2,
 }, {
   name: 'minor',
   members: [0, 3, 7, 10],
@@ -17,7 +17,7 @@ const chordTypes = [{
 }, {
   name: 'minorMajor',
   members: [0, 3, 7, 11],
-  weight: 5,
+  weight: 4,
 }, {
   name: 'dominant',
   members: [0, 4, 7, 10],
@@ -48,7 +48,8 @@ const allChords = pitches.map(pitch =>
 ).flat()
 
 function makeChordSequence(length = 32) {
-  let currentChord = pickRandom(allChords)
+  let localAllChords = deepCopy(allChords)
+  let currentChord = pickRandom(localAllChords)
   const chords = [currentChord]
   while (chords.length < length) {
     const intersectLength = Math.random() > 0.1
@@ -56,7 +57,7 @@ function makeChordSequence(length = 32) {
       : Math.random() > 0.3
         ? 3
         : 1
-    let availableChords = allChords.filter(candidate =>
+    let availableChords = localAllChords.filter(candidate =>
       intersect(currentChord.members, candidate.members).length == intersectLength
     )
     if (chords.length === length - 1) {
@@ -65,6 +66,7 @@ function makeChordSequence(length = 32) {
       )
     }
     currentChord = pickRandomWithWeight(availableChords)
+    currentChord.weight += 1
     chords.push(currentChord)
   }
   return chords
@@ -81,6 +83,10 @@ function pickRandomWithWeight(arr) {
 
 function intersect(a, b) {
   return a.slice().filter(x => b.includes(x))
+}
+
+function deepCopy(a) {
+  return JSON.parse(JSON.stringify(a))
 }
 
 const sequence = makeChordSequence()

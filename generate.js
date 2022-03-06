@@ -126,7 +126,7 @@ function makeMelody(rand, sequence) {
       if (!on) return false
       return pickRandom(
         rand,
-        (rand() > 0.5 ? chord.members : chord.tones).slice(1)
+        (rand() > 0.2 ? chord.members : chord.tones).slice(1)
       )
     })
     return chord

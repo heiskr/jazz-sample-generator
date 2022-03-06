@@ -142,12 +142,12 @@ function formatSequence(sequence) {
   }`).join('\n')
 }
 
-function main(hash) {
-  if (!hash) hash = Math.random().toString(36).slice(2)
-  const rand = xmur3(hash)
+function main(seed) {
+  if (!seed) seed = Math.random().toString(36).slice(2)
+  const rand = xmur3(seed)
   const sequence = makeChordSequence(rand)
   makeMelody(rand, sequence)
-  return [hash, formatSequence(sequence)]
+  return [seed, formatSequence(sequence)]
 }
 
 if (typeof require !== 'undefined' && require.main === module) {

@@ -2,15 +2,15 @@
 <style>* {font-family: ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace;}</style>
 
 <h1>kevin's naive generator</h1>
-<form><input name="hash" /><input type="submit" /></form>
+<form><input name="seed" placeholder="seed" /><input type="submit" /></form>
 <pre />
 
 <script src="generate.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
   try {
-    const [hash, sequence] = main(new URLSearchParams(location.search).get('hash'))
-    document.querySelector('[name="hash"]').value = hash
+    const [seed, sequence] = main(new URLSearchParams(location.search).get('seed'))
+    document.querySelector('[name="seed"]').value = seed
     document.querySelector('pre').innerHTML = sequence
   } catch (e) {
     alert('error. refresh.')

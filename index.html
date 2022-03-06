@@ -7,7 +7,6 @@
 
 <script src="generate.js"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
   try {
     const [seed, sequence] = main(new URLSearchParams(location.search).get('seed'))
     document.querySelector('[name="seed"]').value = seed
@@ -16,5 +15,4 @@
     alert('error. refresh.')
     console.error(e)
   }
-})
 </script>

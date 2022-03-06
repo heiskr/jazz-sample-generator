@@ -71,7 +71,7 @@ function makeChordSequence(rand, length = 32) {
       ? 2
       : rand() > 0.3
         ? 3
-        : 1
+        : Math.round(rand())
     let availableChords = localAllChords.filter(candidate =>
       intersect(currentChord.members, candidate.members).length == intersectLength
     )

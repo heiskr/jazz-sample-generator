@@ -104,7 +104,11 @@ function makeChordSequence(rand, length = 32) {
           intersect(chords[0].members, candidate.members).length == 2
       )
     }
-    currentChord = pickRandomWithWeight(rand, availableChords)
+    if (availableChords.length) {
+      currentChord = pickRandomWithWeight(rand, availableChords)
+    } else {
+      currentChord = pickRandom(rand, localAllChords)
+    }
     currentChord.weight =
       8 * chordTypes.find((ct) => ct.type === currentChord.type).weight
     chords.push(currentChord)

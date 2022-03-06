@@ -62,14 +62,14 @@ const allChords = pitches.map(pitch =>
     }))
 ).flat()
 
-function makeChordSequence(length = 32) {
+function makeChordSequence(rand, length = 32) {
   let localAllChords = deepCopy(allChords)
-  let currentChord = pickRandom(localAllChords)
+  let currentChord = pickRandom(rand, localAllChords)
   const chords = [currentChord]
   while (chords.length < length) {
-    const intersectLength = Math.random() > 0.1
+    const intersectLength = rand() > 0.1
       ? 2
-      : Math.random() > 0.3
+      : rand() > 0.3
         ? 3
         : 1
     let availableChords = localAllChords.filter(candidate =>
@@ -80,40 +80,38 @@ function makeChordSequence(length = 32) {
         intersect(chords[0].members, candidate.members).length == 2
       )
     }
-    currentChord = pickRandomWithWeight(availableChords)
+    currentChord = pickRandomWithWeight(rand, availableChords)
     currentChord.weight = 2 * chordTypes.find(ct => ct.type === currentChord.type).weight
     chords.push(currentChord)
   }
   return chords
 }
 
-function makeMeasureRhythm() {
-  return [...Array(8)].map(() => Math.random() > 0.7)
+function makeMeasureRhythm(rand) {
+  return [...Array(8)].map(() => rand() > 0.7)
 }
 
-function makeMelody() {
-  const chords = makeChordSequence()
-  const rhythm1 = makeMeasureRhythm()
-  const rhythm2 = makeMeasureRhythm()
-
-  return chords.map(chord => {
-    const rhythm = Math.random() > 0.5 ? rhythm1 : rhythm2
+function makeMelody(rand, sequence) {
+  const rhythm1 = makeMeasureRhythm(rand)
+  const rhythm2 = makeMeasureRhythm(rand)
+  return sequence.map(chord => {
+    const rhythm = rand() > 0.5 ? rhythm1 : rhythm2
     chord.melody = rhythm.map(on => {
-      on = Math.random() > 0.9 ? !on : on
+      on = rand() > 0.9 ? !on : on
       if (!on) return false
-      return pickRandom((Math.random() > 0.5 ? chord.members : chord.tones).slice(1))
+      return pickRandom(rand, (rand() > 0.5 ? chord.members : chord.tones).slice(1))
     })
     return chord
   })
 }
 
-function pickRandom(arr) {
-  return arr[Math.floor(Math.random() * arr.length)]
+function pickRandom(rand, arr) {
+  return arr[Math.floor(rand() * arr.length)]
 }
 
-function pickRandomWithWeight(arr) {
+function pickRandomWithWeight(rand, arr) {
   const excessArr = arr.map(e => [...Array(e.weight)].fill(e)).flat()
-  return pickRandom(excessArr)
+  return pickRandom(rand, excessArr)
 }
 
 function intersect(a, b) {
@@ -124,11 +122,34 @@ function deepCopy(a) {
   return JSON.parse(JSON.stringify(a))
 }
 
-const sequence = makeMelody()
-console.log(
-  sequence.map(chord => `${
+// https://stackoverflow.com/a/47593316
+function xmur3(str) {
+  for(var i = 0, h = 1779033703 ^ str.length; i < str.length; i++) {
+    h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+    h = h << 13 | h >>> 19;
+  } return function() {
+    h = Math.imul(h ^ (h >>> 16), 2246822507);
+    h = Math.imul(h ^ (h >>> 13), 3266489909);
+    return ((h ^= h >>> 16) >>> 0) / 4294967296;
+  }
+}
+
+function formatSequence(sequence) {
+  return sequence.map(chord => `${
     (chord.pitchName.toUpperCase() + chord.type).padStart(5)
   }: ${
     chord.melody.map(p => (pitchMap[p] || '-').padEnd(2)).join(' ')
   }`).join('\n')
-)
+}
+
+function main(hash) {
+  if (!hash) hash = Math.random().toString(36).slice(2)
+  const rand = xmur3(hash)
+  const sequence = makeChordSequence(rand)
+  makeMelody(rand, sequence)
+  return [hash, formatSequence(sequence)]
+}
+
+if (typeof require !== 'undefined' && require.main === module) {
+  console.log(main().join('\n'))
+}

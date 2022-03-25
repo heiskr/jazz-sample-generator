@@ -19,14 +19,16 @@ function weightedPick (xmap) {
 }
 
 function pick (xarr) {
-  return xarr[Math.floor(Math.random() * xarr.length)]
+  return xarr[Math.floor(rand() * xarr.length)]
 }
 
+let seed = new URLSearchParams(location.search).get('seed')
+if (!seed) seed = Math.random().toString(36).slice(2)
+document.querySelector('[name="seed"]').value = seed
+const rand = xmur3(seed)
+
 const changes = [weightedPick(counts)]
-
-let count = 32
-
-while (changes.length < count) {
+while (changes.length < 32) {
   const prev = changes[changes.length - 1]
   changes.push(weightedPick(lookup[prev]))
 }

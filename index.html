@@ -1,33 +1,40 @@
+<!DOCTYPE html>
 <meta charset="utf-8">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>naive jazz generator</title>
 
+<link rel="stylesheet" href="https://heiskr.com/drab.css/css/drab.min.css">
 <style>
-  * {
-    font-family: ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace;
-    font-size: 16px;
-    text-align: center;
-  }
-  h1 {
-    margin: 2rem 0;
+  header, ul {
+    width: 100%;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right:  auto;
   }
   ul {
     list-style: none;
     padding: 0;
     display: flex;
     flex-wrap: wrap;
-    width: 100%;
-    max-width: 400px;
-    margin: 0 auto;
+    font-family: ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace;
   }
   li {
-    width:  25%;
-    height:  3rem;
+    width: 25%;
+    height: 3rem;
+  }
+  input {
+    border-radius:  100%;
   }
 </style>
 
-<h1>naive jazz generator</h1>
-
+<header>
+  <h1>naive jazz generator</h1>
+  <form>
+    <input name="seed" placeholder="seed" />
+    <input type="submit" value="Go" />
+    <input type="reset" />
+  </form>
+</header>
 <ul></ul>
 
 <script src="counts.js"></script>
